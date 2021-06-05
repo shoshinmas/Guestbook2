@@ -39,9 +39,26 @@ class CommentCrudController extends AbstractCrudController
     
     public function configureFields(string $pageName): iterable
     {
-        $fields = parent::configureFields($pageName);
-        $fields[] = AssociationField::new('conference');
-        return $fields;
+        yield AssociationField::new('conference');
+        yield TextField::new('author');
+        yield EmailField::new('email');
+        yield TextareaField::new('text')
+            ->hideOnIndex()
+        ;
+        yield TextField::new('photoFilename')
+            ->onlyOnIndex()
+        ;
+
+        $createdAt = DateTimeField::new('createdAt')->setFormTypeOptions([
+            'html5' => true,
+            'years' => range(date('Y'), date('Y') + 5),
+            'widget' => 'single_text',
+        ]);
+        if (Crud::PAGE_EDIT === $pageName) {
+            yield $createdAt->setFormTypeOption('disabled', true);
+        } else {
+            yield $createdAt;
+        }
     }
     
 }
